@@ -1,0 +1,13 @@
+qdrant-client
+langchain
+langchain-openai
+langgraph
+openai
+anthropic
+python-dotenv
+tqdm
+numpy
+langchain-anthropic
+langchain-community
+youtube-transcript-api
+langchain-huggingface
