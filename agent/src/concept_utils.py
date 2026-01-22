@@ -95,15 +95,16 @@ def find_similar_concept(
     
     # Search for similar concepts
     try:
-        search_results = qdrant_client.search(
+        search_results = qdrant_client.query_points(
             collection_name=CONCEPT_COLLECTION,
-            query_vector=query_vector,
-            limit=1
+            query=query_vector,
+            limit=1,
+            with_payload=True
         )
         
         # Check if we found a match above the threshold
-        if search_results and search_results[0].score >= similarity_threshold:
-            result = search_results[0]
+        if search_results.points and search_results.points[0].score >= similarity_threshold:
+            result = search_results.points[0]
             
             return {
                 "concept_id": result.id,
