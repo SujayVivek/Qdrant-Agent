@@ -12,3 +12,4 @@ langchain-community
 youtube-transcript-api
 langchain-huggingface
 uuid
+streamlit

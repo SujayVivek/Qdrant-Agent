@@ -20,6 +20,11 @@ Run after a container of qdrant is running
 1. docker pull qdrant/qdrant
 2. docker run -p 6333:6333 qdrant/qdrant
 
+Better would be to have persistent storage:
+2. docker run -p 6333:6333 \
+  -v qdrant_data:/qdrant/storage \
+  qdrant/qdrant
+
 Look for it on localhost:6333
 
 ### Embedding Model: Use OpenAI - Pay $$ ffs
