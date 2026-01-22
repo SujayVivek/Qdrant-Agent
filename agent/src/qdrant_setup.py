@@ -16,7 +16,7 @@ from config import QDRANT_URL
 
 # Configuration
 COLLECTION_NAME = "video_segments_test"
-VECTOR_SIZE = 384  # all-MiniLM-L6-v2 embedding dimensions
+VECTOR_SIZE = 1536  # all-MiniLM-L6-v2 embedding dimensions
 DISTANCE_METRIC = Distance.COSINE
 
 

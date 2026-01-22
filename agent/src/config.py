@@ -8,15 +8,16 @@ load_dotenv(dotenv_path=env_path)
 
 # Retrieve required environment variables
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-HF_API_KEY = os.getenv("HF_API_KEY")
+# HF_API_KEY = os.getenv("HF_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 QDRANT_URL = os.getenv("QDRANT_URL")
 
 # Validate that all required variables are present
 missing_vars = []
 if not ANTHROPIC_API_KEY:
     missing_vars.append("ANTHROPIC_API_KEY")
-if not HF_API_KEY:
-    missing_vars.append("HF_API_KEY")
+if not OPENAI_API_KEY:
+    missing_vars.append("OPENAI_API_KEY")
 if not QDRANT_URL:
     missing_vars.append("QDRANT_URL")
 
