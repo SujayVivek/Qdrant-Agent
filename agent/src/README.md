@@ -52,3 +52,11 @@ Need to run once only
 Has utility functions to add points, query points from concept memory
 
 
+## FINALLY:
+Run Docker volumes, 
+Run qdrant_setup.py to create all required collections
+Run run_chatbot.py for full experience
+
+Next up! Frontend!
+
+
