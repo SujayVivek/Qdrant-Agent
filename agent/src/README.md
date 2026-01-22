@@ -26,3 +26,19 @@ Look for it on localhost:6333
 Run a single file: python src/embed_chunks.py data/transcripts/processed/Q2iosMpx0Qw_chunked.json
 
 Run all chunked files: python src/embed_chunks.py all
+
+## agent_prompt.py
+This will comprise of all the prompts, you can run
+python agent_prompt.py to review the PROMPT!
+
+## retriever.py
+Testing can be done by running it : 
+python retriever.py "Name? What are you buildling? What is your age"
+
+- It searches for keywords Name, building and age in the qdrant collection
+
+## chatbot_agent.py
+A reasoning model for Claude to respond to!
+Completes the RAG Application here Yay! Working too
+
+
