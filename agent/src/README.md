@@ -41,4 +41,14 @@ python retriever.py "Name? What are you buildling? What is your age"
 A reasoning model for Claude to respond to!
 Completes the RAG Application here Yay! Working too
 
+## run_chatbot.py
+Orchestrates everything, and runs like a charm! It provides a continuous question loop, shows retrieved video segments with video_id etc!
+
+## Concept Memory.py
+This goes ahead and creates a collection for concept memory
+Need to run once only
+
+## Concept Utils
+Has utility functions to add points, query points from concept memory
+
 
