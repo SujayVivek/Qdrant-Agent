@@ -2,6 +2,7 @@
 """
 Interactive CLI Runner for Video Transcript Chatbot
 Simple, demo-friendly interface for judges and users.
+Enhanced with feedback collection for continuous learning.
 """
 
 import sys
@@ -11,6 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from chatbot_agent import VideoChatbotAgent
+from feedback_handler import handle_feedback
 
 
 def print_header():
@@ -52,6 +54,40 @@ def print_answer(answer):
     print("="*70)
 
 
+def collect_feedback(user_question, chunks, agent):
+    """Collect user feedback and update concept memory"""
+    print("\n" + "─"*70)
+    feedback_response = input("💭 Was this explanation helpful? (y/n): ").strip().lower()
+    
+    if feedback_response in ['y', 'yes']:
+        try:
+            result = handle_feedback(
+                user_question=user_question,
+                retrieved_chunks=chunks,
+                user_feedback=True,
+                qdrant_client=agent.qdrant_client,
+                embeddings_model=agent.embeddings_model
+            )
+            
+            if result['action'] == 'created':
+                print(f"✅ Learned new concept! Stored {result.get('chunks_stored', 0)} helpful chunks.")
+            elif result['action'] == 'updated':
+                print(f"✅ Reinforced existing concept! (Usage: {result.get('previous_usage', 0)} → {result.get('previous_usage', 0) + 1})")
+            elif result['action'] == 'error':
+                print(f"⚠️  Could not save feedback: {result.get('message', 'Unknown error')}")
+                
+        except Exception as e:
+            print(f"⚠️  Error processing feedback: {e}")
+            # Don't crash - just continue
+            
+    elif feedback_response in ['n', 'no']:
+        print("📝 Feedback recorded. Memory not updated.")
+    else:
+        print("ℹ️  Skipping feedback (invalid response).")
+    
+    print("─"*70)
+
+
 def main():
     """Main interactive loop"""
     
@@ -88,6 +124,9 @@ def main():
                 # Display results
                 print_retrieved_segments(chunks)
                 print_answer(answer)
+                
+                # Collect feedback
+                collect_feedback(user_question, chunks, agent)
                 
             except KeyboardInterrupt:
                 print("\n\n👋 Thanks for using the Video Transcript Chatbot!")

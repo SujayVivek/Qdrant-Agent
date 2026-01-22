@@ -90,7 +90,7 @@ def retrieve_relevant_chunks(
             if similar_concept:
                 memory_chunk_ids = set(similar_concept.get("top_chunks", []))
                 if memory_chunk_ids:
-                    print(f"   💡 Found similar concept with {len(memory_chunk_ids)} known helpful chunks")
+                    print(f"   💡 Found similar concept in CONCEPT MEMORY with {len(memory_chunk_ids)} known helpful chunks")
         except Exception as e:
             # Concept memory might not exist yet - continue without it
             print(f"   ℹ️  Concept memory not available: {e}")
