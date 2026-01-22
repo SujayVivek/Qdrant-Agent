@@ -116,6 +116,45 @@ def extract_video_id(url: str) -> str:
         return url
 
 
+def format_time(seconds: float) -> str:
+    """Convert seconds to MM:SS format"""
+    mins = int(seconds // 60)
+    secs = int(seconds % 60)
+    return f"{mins}:{secs:02d}"
+
+
+def create_youtube_timestamp_link(video_id: str, start_time: float, end_time: float) -> str:
+    """Create a clickable YouTube timestamp link with golden highlighting"""
+    start_seconds = int(start_time)
+    youtube_url = f"https://youtube.com/watch?v={video_id}&t={start_seconds}s"
+    time_display = f"{format_time(start_time)}-{format_time(end_time)}"
+    
+    # Golden/yellow styling with link
+    styled_link = f'''<a href="{youtube_url}" target="_blank" style="background-color: #FFD700; padding: 2px 6px; border-radius: 4px; text-decoration: none; color: #000; font-weight: 600; white-space: nowrap;">🎬 {time_display}</a>'''
+    
+    return styled_link
+
+
+def enhance_answer_with_links(answer: str, chunks: list) -> str:
+    """
+    Enhance the answer by replacing timestamp citations with clickable YouTube links.
+    Looks for patterns like [Video: video_id, Time: 45.2s-67.8s] and converts them.
+    """
+    import re
+    
+    # Pattern to match citations like [Video: ABC123, Time: 45.2s-67.8s]
+    pattern = r'\[Video:\s*([^,]+),\s*Time:\s*([\d.]+)s?-([\d.]+)s?\]'
+    
+    def replace_citation(match):
+        video_id = match.group(1).strip()
+        start_time = float(match.group(2))
+        end_time = float(match.group(3))
+        return create_youtube_timestamp_link(video_id, start_time, end_time)
+    
+    enhanced_answer = re.sub(pattern, replace_citation, answer)
+    return enhanced_answer
+
+
 def process_video(video_url: str, progress_container) -> bool:
     """Process a single video: fetch transcript, chunk, embed, and store"""
     try:
@@ -355,19 +394,29 @@ def render_chat():
     # Display chat messages
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+            # For assistant messages with chunks, enhance with links
+            if message["role"] == "assistant" and "chunks" in message:
+                enhanced_content = enhance_answer_with_links(message["content"], message["chunks"])
+                st.markdown(enhanced_content, unsafe_allow_html=True)
+            else:
+                st.markdown(message["content"])
             
             # Show retrieved chunks for assistant messages
             if message["role"] == "assistant" and "chunks" in message:
                 with st.expander("📚 Retrieved Video Segments"):
                     for i, chunk in enumerate(message["chunks"], 1):
-                        st.markdown(f"""
-                        **[{i}]** Video: `{chunk['video_id']}` | 
-                        Time: `{chunk['start_time']:.1f}s - {chunk['end_time']:.1f}s` | 
-                        Score: `{chunk['score']:.3f}`
+                        video_id = chunk['video_id']
+                        start_time = chunk['start_time']
+                        end_time = chunk['end_time']
                         
-                        > {chunk['text'][:150]}...
-                        """)
+                        # Create clickable link
+                        segment_link = create_youtube_timestamp_link(video_id, start_time, end_time)
+                        
+                        st.markdown(f"""
+                        **[{i}]** {segment_link} | Score: `{chunk['score']:.3f}`
+                        
+                        > {chunk['text'][:200]}...
+                        """, unsafe_allow_html=True)
     
     # Chat input
     if st.session_state.videos_ready:
@@ -411,21 +460,29 @@ def render_chat():
                 
                 status_placeholder.empty()
                 
-                # Display answer
-                st.markdown(answer)
+                # Enhance answer with clickable timestamp links
+                enhanced_answer = enhance_answer_with_links(answer, chunks)
+                
+                # Display answer with HTML support for links
+                st.markdown(enhanced_answer, unsafe_allow_html=True)
                 print(f"\n✓ Answer generated and displayed")
                 print("="*70 + "\n")
                 
-                # Show retrieved chunks
+                # Show retrieved chunks in a cleaner format
                 with st.expander("📚 Retrieved Video Segments"):
                     for i, chunk in enumerate(chunks, 1):
-                        st.markdown(f"""
-                        **[{i}]** Video: `{chunk['video_id']}` | 
-                        Time: `{chunk['start_time']:.1f}s - {chunk['end_time']:.1f}s` | 
-                        Score: `{chunk['score']:.3f}`
+                        video_id = chunk['video_id']
+                        start_time = chunk['start_time']
+                        end_time = chunk['end_time']
                         
-                        > {chunk['text'][:150]}...
-                        """)
+                        # Create clickable link for the segment
+                        segment_link = create_youtube_timestamp_link(video_id, start_time, end_time)
+                        
+                        st.markdown(f"""
+                        **[{i}]** {segment_link} | Score: `{chunk['score']:.3f}`
+                        
+                        > {chunk['text'][:200]}...
+                        """, unsafe_allow_html=True)
                 
                 # Add to message history
                 st.session_state.messages.append({
@@ -475,7 +532,7 @@ def render_feedback():
         
         with col2:
             if st.button("👎 No", use_container_width=True):
-                st.info("📝 Feedback recorded. Memory not updated.")
+                st.info("📝 Feedback recorded")
                 print("\n[Feedback] User provided negative feedback (memory not updated)")
 
 
